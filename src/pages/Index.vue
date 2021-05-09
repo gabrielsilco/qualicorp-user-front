@@ -1,7 +1,9 @@
 <template>
   <q-page class="q-pa-md">
     <q-btn
-    color="green">Novo Usuário</q-btn>
+    color="green"
+    @click="createUserDialog = !createUserDialog">Novo Usuário</q-btn>
+
     <q-table
       title="Usuários"
       :data="users"
@@ -10,8 +12,6 @@
       class="q-mt-md"
       
     >
-
-    
       <template v-slot:header="props">
         <q-tr :props="props">
           <!-- <q-th auto-width></q-th> -->
@@ -27,16 +27,6 @@
 
       <template v-slot:body="props">
         <q-tr :props="props" align="center">
-          <!-- <q-td auto-width>
-            <q-btn size="sm" color="accent" round dense @click="props.expand = !props.expand" :icon="props.expand ? 'remove' : 'add'"></q-btn>
-          </q-td> -->
-          <!-- <q-td
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-          >
-            {{ col.value }}
-          </q-td> -->
           <q-td key="fullName">
             {{ props.row.fullName }}
           </q-td>
@@ -67,6 +57,61 @@
 
 
     </q-table>
+    <q-dialog v-model="createUserDialog">
+      <q-card style="width: 700px; max-width: 80vw;">
+        <q-card-section>
+          <div class="text-h6">Criar usuário</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-form>
+            <q-input
+              filled
+              v-model="fullName"
+              label="Nome completo"
+              class="q-pb-lg"
+              :rules="[val => !!val || 'Campo obrigatório', val => val.length >= 5 || 'Este campo deve possuir pelo menos 5 caracteres']" />
+            <q-input
+              filled
+              v-model="cpf"
+              label="CPF"
+              mask="###.###.###-##"
+              fill-mask
+              class="q-pb-lg"
+              :rules="[val => !!val || 'Campo obrigatório']" />
+            <q-input
+              filled
+              v-model="email"
+              label="E-mail"
+              type="email"
+              class="q-pb-lg"
+              :rules="[val => !!val || 'Campo obrigatório']" />
+            <q-input
+              filled
+              v-model="phone"
+              label="Telefone"
+              type="tel"
+              mask="(##) #####-####"
+              fill-mask
+              class="q-pb-lg"
+              :rules="[val => !!val || 'Campo obrigatório']" />
+            <q-date
+              v-model="birthDate"
+              subtitle="Data de nascimento"
+            />
+          </q-form>
+        </q-card-section>
+
+        <q-card-actions align="center">
+          <q-btn
+            label="Criar usuário"
+            size="lg"
+            color="green"
+            @click="createUser"
+            v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -76,6 +121,12 @@ export default {
   name: 'PageIndex',
   data() {
     return {
+      fullName: '',
+      cpf: '',
+      email: '',
+      phone: '',
+      birthDate: '',
+      createUserDialog: false,
       users: [],
       columns: [
         {
@@ -92,110 +143,54 @@ export default {
         { name: 'phone', label: 'Telefone', align: 'center', field: 'phone' },
         { name: 'birthDate', label: 'Data de nascimento', align: 'center', field: 'birthDate' },
         { name: "actions", label: "Ação", field: "acao", align: 'center' }
-      ],
-      data: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: '14%',
-          iron: '1%'
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: '8%',
-          iron: '1%'
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: '6%',
-          iron: '7%'
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: '3%',
-          iron: '8%'
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: '7%',
-          iron: '16%'
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: '0%',
-          iron: '0%'
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: '0%',
-          iron: '2%'
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: '0%',
-          iron: '45%'
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: '2%',
-          iron: '22%'
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: '12%',
-          iron: '6%'
-        }
       ]
     }
+  },
+  methods: {
+    createUser() {
+      const newUser = {
+        fullName: this.fullName,
+        cpf: this.cpf,
+        email: this.email,
+        phone: this.phone,
+        birthDate: this.birthDate
+      }
+
+      UserService.createUser(newUser)
+        .then(result => {
+          UserService.getAllUsers()
+            .then(response => {
+              this.users = response.data.users
+            })
+          this.fullName = ''
+          this.cpf = ''
+          this.email = ''
+          this.phone = ''
+          this.birthDate = ''
+        })
+
+      console.log(newUser)
+    },
+    validarCPF(val){
+    var soma = 0;
+    var resto;
+    var inputCPF = val
+
+    if(inputCPF == '00000000000') return false;
+    for(i=1; i<=9; i++) soma = soma + parseInt(inputCPF.substring(i-1, i)) * (11 - i);
+    resto = (soma * 10) % 11;
+
+    if((resto == 10) || (resto == 11)) resto = 0;
+    if(resto != parseInt(inputCPF.substring(9, 10))) return false;
+
+    soma = 0;
+    for(i = 1; i <= 10; i++) soma = soma + parseInt(inputCPF.substring(i-1, i))*(12-i);
+    resto = (soma * 10) % 11;
+
+    if((resto == 10) || (resto == 11)) resto = 0;
+    if(resto != parseInt(inputCPF.substring(10, 11))) return false;
+    return true;
+}
   },
   created() {
     UserService.getAllUsers()
