@@ -12,13 +12,35 @@ class UserService {
         })
     };
 
-    static createUser(user) {
+    static createUser(userData) {
         return new Promise(async (resolve, reject) => {
             try {
-                const data = Axios.post('http://localhost:5005/user/create', {...user})
+                const data = Axios.post('http://localhost:5005/user/create', {...userData})
                 resolve(data)
             } catch (error) {
                 reject(error)
+            }
+        })
+    }
+
+    static editUser(userId, newUserData) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const data = Axios.put('http://localhost:5005/user/edit/' + userId, {...newUserData})
+                resolve(data)
+            } catch (error) {
+                reject (error)
+            }
+        })
+    }
+
+    static deleteUser(userId) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const data = Axios.delete('http://localhost:5005/user/delete/' + userId)
+                resolve(data)
+            } catch (error) {
+                reject (error)
             }
         })
     }

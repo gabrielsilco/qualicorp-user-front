@@ -46,10 +46,12 @@
             <q-btn
             rounded
             color="primary"
+            @click="editUser(props.row)"
             size="sm">editar</q-btn>
             <q-btn
             rounded
             color="red"
+            @click="deleteUser(props.row)"
             size="sm">excluir</q-btn>
           </q-td>
         </q-tr>
@@ -58,75 +60,40 @@
 
     </q-table>
     <q-dialog v-model="createUserDialog">
-      <q-card style="width: 700px; max-width: 80vw;">
-        <q-card-section>
-          <div class="text-h6">Criar usuário</div>
-        </q-card-section>
+      <CreateUser @close-create-user="closeCreateUserDialog"/>
+    </q-dialog>
 
-        <q-card-section class="q-pt-none">
-          <q-form>
-            <q-input
-              filled
-              v-model="fullName"
-              label="Nome completo"
-              class="q-pb-lg"
-              :rules="[val => !!val || 'Campo obrigatório', val => val.length >= 5 || 'Este campo deve possuir pelo menos 5 caracteres']" />
-            <q-input
-              filled
-              v-model="cpf"
-              label="CPF"
-              mask="###.###.###-##"
-              fill-mask
-              class="q-pb-lg"
-              :rules="[val => !!val || 'Campo obrigatório']" />
-            <q-input
-              filled
-              v-model="email"
-              label="E-mail"
-              type="email"
-              class="q-pb-lg"
-              :rules="[val => !!val || 'Campo obrigatório']" />
-            <q-input
-              filled
-              v-model="phone"
-              label="Telefone"
-              type="tel"
-              mask="(##) #####-####"
-              fill-mask
-              class="q-pb-lg"
-              :rules="[val => !!val || 'Campo obrigatório']" />
-            <q-date
-              v-model="birthDate"
-              subtitle="Data de nascimento"
-            />
-          </q-form>
-        </q-card-section>
+    <q-dialog v-model="editUserDialog">
+      <EditUser
+        @close-edit-user="closeEditUserDialog"
+        :user="userToEdit" />
+    </q-dialog>
 
-        <q-card-actions align="center">
-          <q-btn
-            label="Criar usuário"
-            size="lg"
-            color="green"
-            @click="createUser"
-            v-close-popup />
-        </q-card-actions>
-      </q-card>
+    <q-dialog v-model="deleteUserDialog">
+      <DeleteUser
+        @close-delete-user="closeDeleteUserDialog"
+        @cancel-delete-user="deleteUserDialog = false"
+        :user="userToDelete" />
     </q-dialog>
   </q-page>
 </template>
 
 <script>
 import UserService from '../services/user-services';
+import CreateUser from '../components/CreateUser';
+import EditUser from '../components/EditUser';
+import DeleteUser from '../components/DeleteUser';
+
 export default {
+  components: {CreateUser, EditUser, DeleteUser},
   name: 'PageIndex',
   data() {
     return {
-      fullName: '',
-      cpf: '',
-      email: '',
-      phone: '',
-      birthDate: '',
       createUserDialog: false,
+      editUserDialog: false,
+      deleteUserDialog: false,
+      userToEdit: null,
+      userToDelete: null,
       users: [],
       columns: [
         {
@@ -147,29 +114,34 @@ export default {
     }
   },
   methods: {
-    createUser() {
-      const newUser = {
-        fullName: this.fullName,
-        cpf: this.cpf,
-        email: this.email,
-        phone: this.phone,
-        birthDate: this.birthDate
-      }
-
-      UserService.createUser(newUser)
-        .then(result => {
-          UserService.getAllUsers()
-            .then(response => {
-              this.users = response.data.users
-            })
-          this.fullName = ''
-          this.cpf = ''
-          this.email = ''
-          this.phone = ''
-          this.birthDate = ''
-        })
-
-      console.log(newUser)
+    editUser(user) {
+      this.userToEdit = user;
+      this.editUserDialog = true;
+    },
+    deleteUser(user) {
+      this.userToDelete = user;
+      this.deleteUserDialog = true;
+    },
+    closeCreateUserDialog() {
+      this.createUserDialog = false
+      UserService.getAllUsers()
+      .then(response => {
+        this.users = response.data.users
+      })
+    },
+    closeEditUserDialog() {
+      this.editUserDialog = false
+      UserService.getAllUsers()
+      .then(response => {
+        this.users = response.data.users
+      })
+    },
+    closeDeleteUserDialog() {
+      this.deleteUserDialog = false
+      UserService.getAllUsers()
+      .then(response => {
+        this.users = response.data.users
+      })
     },
     validarCPF(val){
     var soma = 0;
